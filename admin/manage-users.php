@@ -18,35 +18,7 @@
 <body class="overflow-x-hidden">
   <main style="height: 100vh; width: 100%;" class="row">
     <!-- SIDEBAR -->
-    <aside class="col-2 h-100 border">
-      <section class="my-5">
-        <img src="../image/logo.png" class="rounded mx-auto d-block" alt="LOGO" width="170">
-      </section>
-      <hr>
-      <nav class="text-decoration-none">
-        <ul class="d-flex flex-column gap-2 px-2">
-          <li><a href="dashboard.php" style="width: 100%;" class="btn btn-light text-start"><i class="bi bi-house"></i>
-              Dashboard</a></li>
-          <li><a href="transactions.php" style="width: 100%;" class="btn btn-light text-start"><i
-                class="bi bi-plus-circle-dotted"></i> Transactions</a></li>
-          <li><a href="manage-users.php" style="width: 100%;" class="btn btn-light text-start active"><i
-                class="bi bi-people"></i> Manage Users</a>
-          </li>
-          <li><a href="manage-owners.php" style="width: 100%;" class="btn btn-light text-start"><i
-                class="bi bi-person-circle"></i> Manage Owners</a>
-          </li>
-          <li><a href="manage-car.php" style="width: 100%;" class="btn btn-light text-start"><i
-                class="bi bi-card-list"></i> Manage Vehicles</a>
-          </li>
-          <li><a href="manage-driver.php" style="width: 100%;" class="btn btn-light text-start"><i
-                class="bi bi-person-vcard"></i>
-              Manage Drivers</a></li>
-          <li><a href="rental-history.php" style="width: 100%;" class="btn btn-light text-start"><i
-                class="bi bi-table"></i>
-              Rental History</a></li>
-        </ul>
-      </nav>
-    </aside>
+    <?php include "sidebar.php"; ?>
     <section class="col bg-tertiary">
       <!-- NAVBAR -->
       <nav class="navbar" style="height: 60px;">
@@ -144,6 +116,7 @@
                 <th scope="col">Email</th>
                 <th scope="col">Address</th>
                 <th scope="col">Role</th>
+                <th scope="col" class="text-end">Account Status</th>
                 <th scope=" col" class="text-end">Date Registered</th>
                 <th scope="col" class="text-end">Action</th>
               </tr>
@@ -158,13 +131,38 @@
                   <tr style="cursor: pointer;">
                     <th scope="row"><?= $count; ?></th>
                     <td><?= $row['Name'] ?></td>
-                    <td><?= $row['Contact'] ?></td>
+                    <td><?= $row['Contact'] ?? "N/A" ?></td>
                     <td><?= $row['Email'] ?></td>
-                    <td><?= $row['Address'] ?></td>
+                    <td><?= $row['Address'] ?? "N/A" ?></td>
                     <td>
                       <span class="badge text-bg-warning text-uppercase">
                         <?= $row['Role'] ?>
                       </span>
+                    </td>
+                    <td class="text-end">
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <?= $row['accountLocked'] == 1 ? "Locked" : "Unlocked" ?>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <form action="../functions.php" method="post">
+                              <input type="hidden" name="userID" value="<?= $row['UserID'] ?>">
+                              <button type="submit" name="unlockAccountBtn" class="dropdown-item" <?= $row['accountLocked'] == 0 ? "disabled" : "" ?>>
+                                <i class="bi bi-unlock2"></i>
+                                Set Unlock</button>
+                            </form>
+                          </li>
+                          <li>
+                            <form action="../functions.php" method="post">
+                              <input type="hidden" name="userID" value="<?= $row['UserID'] ?>">
+                              <button class="dropdown-item" name="lockAccountBtn" <?= $row['accountLocked'] == 0 ? "" : "disabled" ?>>
+                                <i class="bi bi-lock"></i>
+                                Set Lock</button>
+                            </form>
+                          </li>
+                        </ul>
+                      </div>
                     </td>
                     <td class="text-end">
                       <?php $date = new DateTime($row['CreatedAt']);

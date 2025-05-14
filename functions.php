@@ -33,7 +33,7 @@ if (isset($_POST["addAccountBtn"])) {
 
         // Add to audit logs
         $ip = getUserIP();
-        $auditSql = "INSERT INTO tbl_audit (UserID, Action, Reason, IPAddress, CreatedAt) VALUES ({$_SESSION["userID"]}, 'An account has been created.', 'Account Created Successfully', '$ip', NOW())";
+        $auditSql = "INSERT INTO tbl_audit (UserID, `Action`, `Status`, IPAddress, CreatedAt) VALUES ({$_SESSION["userID"]}, 'An account has been created.', 'Account Created Successfully', '$ip', NOW())";
         mysqli_query($con, $auditSql);
 
         header("Location: ./client/browse.php");
@@ -63,7 +63,7 @@ if (isset($_POST["loginBtn"])) {
             if ($timeDiff < 60) {
                 // Add to audit logs
                 $ip = getUserIP();
-                $auditSql = "INSERT INTO tbl_audit (UserID, Action, Reason, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Failed login attempt', 'Account Locked', '$ip', NOW())";
+                $auditSql = "INSERT INTO tbl_audit (UserID, `Action`, `Status`, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Failed login attempt', 'Account Locked', '$ip', NOW())";
                 mysqli_query($con, $auditSql);
                 header("Location: ./login/index.php?error=account-locked");
                 exit();
@@ -74,7 +74,7 @@ if (isset($_POST["loginBtn"])) {
 
                 // Add to audit logs
                 $ip = getUserIP();
-                $auditSql = "INSERT INTO tbl_audit (UserID, Action, Reason, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Account has been unlocked.', 'Account Unlocked', '$ip', NOW())";
+                $auditSql = "INSERT INTO tbl_audit (UserID, `Action`, `Status`, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Account has been unlocked.', 'Account Unlocked', '$ip', NOW())";
                 mysqli_query($con, $auditSql);
 
                 // Re-fetch updated user info
@@ -96,7 +96,7 @@ if (isset($_POST["loginBtn"])) {
 
             // Add to audit logs
             $ip = getUserIP();
-            $auditSql = "INSERT INTO tbl_audit (UserID, Action, Reason, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Account has been logged in.', 'Account Login', '$ip', NOW())";
+            $auditSql = "INSERT INTO tbl_audit (UserID, `Action`, `Status`, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Account has been logged in.', 'Account Login', '$ip', NOW())";
             mysqli_query($con, $auditSql);
 
             if ($row["Role"] == "admin") {
@@ -111,7 +111,7 @@ if (isset($_POST["loginBtn"])) {
 
             // Add to audit logs
             $ip = getUserIP();
-            $auditSql = "INSERT INTO tbl_audit (UserID, Action, Reason, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Account failed to login', 'Account Login Unsuccessfull', '$ip', NOW())";
+            $auditSql = "INSERT INTO tbl_audit (UserID, `Action`, `Status`, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Account failed to login', 'Account Login Unsuccessfull', '$ip', NOW())";
             mysqli_query($con, $auditSql);
 
             if ($row["loginAttempts"] >= 3) {
@@ -120,7 +120,7 @@ if (isset($_POST["loginBtn"])) {
 
                 // Add to audit logs
                 $ip = getUserIP();
-                $auditSql = "INSERT INTO tbl_audit (UserID, Action, Reason, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Account has been locked', 'Account Locked', '$ip', NOW())";
+                $auditSql = "INSERT INTO tbl_audit (UserID, `Action`, `Status`, IPAddress, CreatedAt) VALUES ({$row['UserID']}, 'Account has been locked', 'Account Locked', '$ip', NOW())";
                 mysqli_query($con, $auditSql);
 
                 header("Location: ./login/index.php?error=account-locked");
@@ -130,6 +130,41 @@ if (isset($_POST["loginBtn"])) {
         }
     } else {
         header("Location: ./login/index.php?error=user-not-found");
+    }
+}
+
+// LOCK ACCOUNT
+if (isset($_POST["lockAccountBtn"])) {
+    $userID = $_POST["userID"];
+
+    $sql = "UPDATE tbl_user SET accountLocked = 1, lockTimestamp = NOW() WHERE UserID = '$userID'";
+    if (mysqli_query($con, $sql)) {
+        // Add to audit logs
+        $ip = getUserIP();
+        $auditSql = "INSERT INTO tbl_audit (UserID, `Action`, `Status`, IPAddress, CreatedAt) VALUES ({$_SESSION["UserID"]}, 'User ($userID) account has been locked.', 'Account Locked Successfully', '$ip', NOW())";
+        mysqli_query($con, $auditSql);
+        header("Location: ./admin/manage-users.php");
+    } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($con);
+    }
+}
+
+// UNLOCK ACCOUNT
+if (isset($_POST["unlockAccountBtn"])) {
+    $userID = $_POST["userID"];
+
+    $sql = "UPDATE tbl_user SET accountLocked = 0, lockTimestamp = NULL WHERE UserID = '$userID'";
+    if (mysqli_query($con, $sql)) {
+        // Add to audit logs
+        $ip = getUserIP();
+        $auditSql = "INSERT INTO tbl_audit (UserID, `Action`, `Status`, IPAddress, CreatedAt) VALUES ({$_SESSION["UserID"]}, 'User ($userID) account has been unlocked.', 'Account Unlocked Successfully', '$ip', NOW())";
+        if (mysqli_query($con, $auditSql)) {
+            header("Location: ./admin/manage-users.php");
+        } else {
+            echo "Error: " . $sql . "<br>" . mysqli_error($con);
+        }
+    } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($con);
     }
 }
 
