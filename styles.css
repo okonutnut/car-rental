@@ -1,0 +1,43 @@
+.background {
+  background-color: #6ba3be;
+}
+
+.primary {
+  background-color: #0c969c !important;
+}
+
+.text-primary {
+  color: #0c969c !important;
+}
+
+.secondary {
+  background-color: #274d60;
+}
+
+.glass {
+  /* From https://css.glass */
+  background: rgba(255, 255, 255, 0.11);
+  /* border-radius: 16px; */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.inner-shadow {
+  box-shadow: inset 10px 0 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Auto-fit columns */
+  grid-gap: 15px;
+  grid-auto-flow: row; /* Auto-flow row by row */
+}
+
+.grid-item {
+  background-color: lightblue;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+}
